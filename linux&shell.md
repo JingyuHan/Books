@@ -186,3 +186,113 @@
 
 　　带有硬链接的文件共享inode编号，文件大小也一模一样。它们终归是同一个文件。注意：只能对处于同一存储媒体的文件创建硬链接，要想在不同存储媒体的文件之间创建链接，只能使用符号链接。
 　　复制链接文件时一定要小心。当复制一个已经被链接到另一个源文件的文件时，得到的是源文件的副本。不需要复制链接文件，可以创建原始文件的另一个链接。千万不要创建软链接文件的软链接，这样会形成混乱的链接链，不仅容易断裂，还会造成各种麻烦。
+　　mv命令可以将文件或目录移动到另一个位置或重命名。文件的时间戳和inode编号都不变，改变的只有位置和名称。
+
+	mv <source> <destination>
+
+　　rm命令可以移除文件（removing）。文件一旦移除，就无法找回。在试用rm命令时，习惯加入-i参数。加入-f参数可以不受提示符打扰，强制移除。
+
+	rm -i <file>
+
+##3.7 处理目录##
+
+　　mkdir命令可以创建新目录。
+
+	mkdir <directory>
+
+　　想要同时创建多个目录和子目录，需要加入-p参数，它会根据需要创建缺失的父目录。
+
+	$ mkdir testff/testf/test
+	mkdir: 无法创建目录"test/test/test": 没有那个文件或目录
+	$ mkdir -p testff/testf/test
+	$ ls -R testff
+	testff:
+	testf
+
+	testff/testf:
+	test
+
+	testff/testf/test:
+	$
+
+　　移除目录的基本命令rmdir，但它只能删除空目录。rmdir没有-i参数来询问是否移除目录。可以使用rm命令加-r参数（对于rm命令，-r和-R参数的效果是一样的），他会向下进入目录，移除其中的文件，然后移除目录本身。
+
+	$ rmdir testff
+	rmdir: 删除 "testff" 失败: 目录非空
+	$ rm -ri testff
+	rm：是否进入目录"testff"? y
+	rm：是否进入目录"testff/testf"? y
+	rm：是否进入目录"testff/testf/test"? y
+	rm：是否删除普通空文件 "testff/testf/test/testfile"？y
+	rm：是否删除目录 "testff/testf/test"？y
+	rm：是否删除目录 "testff/testf"？y
+	rm：是否删除目录 "testff"？y
+	$
+
+　　这样需要确认每个文件或目录是否要移除，可以加-f参数忽略询问强制移除。
+
+	$ rm -rif testff
+	$ ls testff
+	ls: 无法访问testff: 没有那个文件或目录
+	$
+
+　　使用tree工具可以直观的展示目录、子目录及其中的文件。
+
+##3.8 查看文件内容##
+
+　　file命令可以探测文件内部，并决定文件是什么类型。如果是文本文件，还能确定编码方式。如果是链接文件，能够确定他链接在哪个文件上。如果是一个二进制可执行程序，能够确定该程序编译时所面向的平台以及所需类库。
+
+	file <filename>
+
+　　cat命令可以显示文本文件中的所有数据。-n参数可以给所有的行加上行号，-b参数可以只给有文本的行加上行号，-T参数可以将制表符替换为^I。
+
+	$ cat test
+	This is a test file
+
+		This is a test file
+
+	This is a test file
+	$ cat -n test
+	     1	This is a test file
+	     2	
+	     3		This is a test file
+	     4	
+	     5	This is a test file
+	$ cat -b test
+	     1	This is a test file
+	
+	     2		This is a test file
+	
+	     3	This is a test file
+	$ cat -T test
+	This is a test file
+
+	^IThis is a test file
+
+	This is a test file
+	$ 
+
+　　cat命令的缺陷是，一旦运行，就无法控制后面的操作，文本会在显示器上一晃而过。
+　　more命令则会在显示每页数据之后停下来，在屏幕底部，more命令会显示一个标签，来标明仍然在more程序中以及在文本文件中的位置。和手册页中一样，可以通过空格键换行，回车键逐行前进的方式浏览文本，按q退出。
+
+	more <filename>
+
+　　less命令是more命令的升级版，它提供了一些实用的特性，能够在文本文件中前后翻动，而且还有一些高级搜索的功能。它能够识别方向键以及翻页键。
+
+	less <filename>
+
+　　tail命令会显示文本最后几行的内容，默认情况下显示末尾10行。可以在tail命令中加入参数-n来修改显示的行数。-f参数允许你在其他进程使用该文件时查看文件的内容。tail命令会保持活动状态，并不断显示添加到文件中的内容。这是实时监测系统日志文件的绝妙方式。
+
+	tail [option] <filename>
+		-n 修改显示行数
+		-f 实时显示
+
+　　head命令与tail命令类似，不过它是显示文件开头的几行内容，默认情况下显示开头10行。也支持-n参数。
+
+	head [option] <filename>
+		-n 修改显示行数
+
+#第四章 更多的bash shell命令#
+
+##4.1 监测程序##
+
