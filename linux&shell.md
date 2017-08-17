@@ -742,3 +742,66 @@
 
 ##5.2 shell的父子关系##
 
+　　在CLI提示符后输入/bin/bash命令或其他等效bash命令时，会创建一个新的shell程序，这个shell程序被称为子shell（child shell）。bash shell是一个程序，当它运行时，就成为了一个进程，一个运行着的shell就是某个进程。在生成子shell时，只有部分父进程的环境被复制到子shell环境中。
+
+	[root@localhost ~]# ps -f
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2155  2150  0 19:56 pts/0    00:00:00 -bash
+	root      2524  2155  0 20:41 pts/0    00:00:00 ps -f
+	[root@localhost ~]# bash
+	[root@localhost ~]# bash
+	[root@localhost ~]# bash
+	[root@localhost ~]# ps -f --forest
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2155  2150  0 19:56 pts/0    00:00:00 -bash
+	root      2565  2155  0 20:47 pts/0    00:00:00  \_ bash
+	root      2574  2565  0 20:47 pts/0    00:00:00      \_ bash
+	root      2583  2574  0 20:47 pts/0    00:00:00          \_ bash
+	root      2593  2583  0 20:47 pts/0    00:00:00              \_ ps -f --forest
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# ps -f --forest
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2155  2150  0 19:56 pts/0    00:00:00 -bash
+	root      2565  2155  0 20:47 pts/0    00:00:00  \_ bash
+	root      2574  2565  0 20:47 pts/0    00:00:00      \_ bash
+	root      2596  2574  0 20:48 pts/0    00:00:00          \_ ps -f --forest
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# ps -f --forest
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2155  2150  0 19:56 pts/0    00:00:00 -bash
+	root      2597  2155  1 20:48 pts/0    00:00:00  \_ ps -f --forest
+	[root@localhost ~]# 
+
+
+　　此例中，可以看到创建了三个子shell，ps --forest命令展示了这些子shell间的嵌套结构。通过PID和PPID可以看出他们的父子关系。
+　　exit命令不仅可以退出子shell，还能用来登出当前的虚拟控制台终端或终端仿真软件。只需在父shell中输入exit，就能退出CLI了。
+　　只需在命令之间加入分号（；）就可以实现命令列表。而当这些命令包含在括号中时，就实现了进程列表。进程列表会生成一个子shell来执行对应的命令。借助环境变量的命令echo $BASH_SUBSHELL来查看是否生成了子shell。
+
+	[root@localhost home]# pwd; cd /etc; pwd; cd /home; pwd; echo $BASH_SUBSHELL
+	/home
+	/etc
+	/home
+	0
+	[root@localhost home]# (pwd; cd /etc; pwd; cd /home; pwd; echo $BASH_SUBSHELL)
+	/home
+	/etc
+	/home
+	1
+	[root@localhost home]# (pwd; cd /etc; pwd; cd /home; pwd); echo $BASH_SUBSHELL
+	/home
+	/etc
+	/home
+	0
+	[root@localhost home]# (pwd; cd /etc; pwd; cd /home; pwd; (echo $BASH_SUBSHELL))
+	/home
+	/etc
+	/home
+	2
+	[root@localhost home]# 
+
+　　可以看出每出现一对括号，就会生成一个子shell，而括号结束后，进程结束。
+　　在交互式的CLI shell会话中，子shell并非真正的多进程处理，因为终端控制着子shell的I/O，所以采用子shell会明显拖慢处理速度。
