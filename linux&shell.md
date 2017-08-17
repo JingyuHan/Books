@@ -132,16 +132,16 @@
 
 　　touch命令可以创建指定新文件，并将你的用户名作为文件属主。文件大小为零，因为touch值创建一个空文件。touch文件还可以用来改变文件的修改时间，这个操作并不改变文件的内容。若只想修改访问时间，可用-a参数。只是用ls -l命令，不会显示访问时间，若想查看访问时间，需要加入另一个参数：--time=atime。
 
-	$ touch test
-	$ ll test
+	[root@localhost ~]# touch test
+	[root@localhost ~]# ll test
 	-rw-r--r--. 1 root root 520 8月  12 02:23 test
-	$ touch test
-	$ ll test
+	[root@localhost ~]# touch test
+	[root@localhost ~]# ll test
 	-rw-r--r--. 1 root root 520 8月  12 02:24 test
-	$ touch -a test
-	$ ll test
+	[root@localhost ~]# touch -a test
+	[root@localhost ~]# ll test
 	-rw-r--r--. 1 root root 520 8月  12 02:24 test
-	$ ll --time=atime test
+	[root@localhost ~]# ll --time=atime test
 	-rw-r--r--. 1 root root 520 8月  12 02:25 test
 
 　　cp命令可以在文件系统中，将文件和目录从一个位置复制到另一个位置。在基本的用法中，cp命令需要两个参数————源对象和目标对象：
@@ -163,24 +163,24 @@
 
 　　符号链接就是一个实实在在的文件，它指向放在虚拟目录结构中某个地方的另一个文件。这两个通过符号链接在一起的文件，彼此的内容并不相同。要为一个文件创建符号链接，原始文件必须事先存在。然后可以使用ln命令以及-s选项来创建符号链接。类似windows下的快捷方式。
 
-	$ ll test*
+	[root@localhost ~]# ll test*
 	-rw-r--r--. 1 root root 520 8月  12 02:20 test
-	$ ln -s test test_sl
-	$ ll test*
+	[root@localhost ~]# ln -s test test_sl
+	[root@localhost ~]# ll test*
 	-rw-r--r--. 1 root root 520 8月  12 02:20 test
 	lrwxrwxrwx. 1 root root   4 8月  12 02:21 test_sl -> test
-	$ ll -i test*
+	[root@localhost ~]# ll -i test*
 	529974 -rw-r--r--. 1 root root 520 8月  12 02:24 test
 	529745 lrwxrwxrwx. 1 root root   4 8月  12 02:21 test_sl -> test
-	$
+	[root@localhost ~]#
 
 　　符号链接文件与源文件是两个完全不同的文件，由上例可以看到，源文件为520字节，而符号链接文件只有4字节，并且inode编号也不一样。
 　　硬链接会创建独立的虚拟文件，其中包含了原始文件的信息及位置。他们从根本上来说是同一个文件。引用硬链接文件等同于引用了源文件。要创建硬链接，原始文件必须事先存在，只不过这次使用的ln命令时不需要加入额外的参数了。
 
-	$ ll test*
+	[root@localhost ~]# ll test*
 	-rw-r--r--. 1 root root 520 8月  12 02:20 test
-	$ ln test test_hl
-	$ ll -i test*
+	[root@localhost ~]# ln test test_hl
+	[root@localhost ~]# ll -i test*
 	529974 -rw-r--r--. 2 root root 520 8月  12 02:24 test
 	529974 -rw-r--r--. 2 root root 520 8月  12 02:24 test_hl
 
@@ -202,10 +202,10 @@
 
 　　想要同时创建多个目录和子目录，需要加入-p参数，它会根据需要创建缺失的父目录。
 
-	$ mkdir testff/testf/test
+	[root@localhost ~]# mkdir testff/testf/test
 	mkdir: 无法创建目录"test/test/test": 没有那个文件或目录
-	$ mkdir -p testff/testf/test
-	$ ls -R testff
+	[root@localhost ~]# mkdir -p testff/testf/test
+	[root@localhost ~]# ls -R testff
 	testff:
 	testf
 
@@ -213,13 +213,13 @@
 	test
 
 	testff/testf/test:
-	$
+	[root@localhost ~]#
 
 　　移除目录的基本命令rmdir，但它只能删除空目录。rmdir没有-i参数来询问是否移除目录。可以使用rm命令加-r参数（对于rm命令，-r和-R参数的效果是一样的），他会向下进入目录，移除其中的文件，然后移除目录本身。
 
-	$ rmdir testff
+	[root@localhost ~]# rmdir testff
 	rmdir: 删除 "testff" 失败: 目录非空
-	$ rm -ri testff
+	[root@localhost ~]# rm -ri testff
 	rm：是否进入目录"testff"? y
 	rm：是否进入目录"testff/testf"? y
 	rm：是否进入目录"testff/testf/test"? y
@@ -227,14 +227,14 @@
 	rm：是否删除目录 "testff/testf/test"？y
 	rm：是否删除目录 "testff/testf"？y
 	rm：是否删除目录 "testff"？y
-	$
+	[root@localhost ~]#
 
 　　这样需要确认每个文件或目录是否要移除，可以加-f参数忽略询问强制移除。
 
-	$ rm -rif testff
-	$ ls testff
+	[root@localhost ~]# rm -rif testff
+	[root@localhost ~]# ls testff
 	ls: 无法访问testff: 没有那个文件或目录
-	$
+	[root@localhost ~]#
 
 　　使用tree工具可以直观的展示目录、子目录及其中的文件。
 
@@ -246,31 +246,31 @@
 
 　　cat命令可以显示文本文件中的所有数据。-n参数可以给所有的行加上行号，-b参数可以只给有文本的行加上行号，-T参数可以将制表符替换为^I。
 
-	$ cat test
+	[root@localhost ~]# cat test
 	This is a test file
 
 		This is a test file
 
 	This is a test file
-	$ cat -n test
+	[root@localhost ~]# cat -n test
 	     1	This is a test file
 	     2	
 	     3		This is a test file
 	     4	
 	     5	This is a test file
-	$ cat -b test
+	[root@localhost ~]# cat -b test
 	     1	This is a test file
 	
 	     2		This is a test file
 	
 	     3	This is a test file
-	$ cat -T test
+	[root@localhost ~]# cat -T test
 	This is a test file
 
 	^IThis is a test file
 
 	This is a test file
-	$ 
+	[root@localhost ~]# 
 
 　　cat命令的缺陷是，一旦运行，就无法控制后面的操作，文本会在显示器上一晃而过。
 　　more命令则会在显示每页数据之后停下来，在屏幕底部，more命令会显示一个标签，来标明仍然在more程序中以及在文本文件中的位置。和手册页中一样，可以通过空格键换行，回车键逐行前进的方式浏览文本，按q退出。
@@ -499,8 +499,8 @@
 　　默认情况下，kill命令会向命令行中列出的全部PID发送一个TERM信号。要发送进程信号，必须是进程的属主或登录为root用户。
 　　TERM信号告诉程序尽可能停止运行，但是有些程序可能会忽略这个请求。想要强制终止，-s参数支持指定其他信号，例如：
 
-	$ kill -s HUP 3940
-	$
+	[root@localhost ~]# kill -s HUP 3940
+	[root@localhost ~]#
 
 　　kill命令不会有任何输出。要检查kill命令是否有效，需要运行ps或top命令查看。
 　　killall命令支持通过进程名来结束进程，支持通配符。以root用户身份登录时，要谨慎使用killall命令，可能会因误用通配符结束重要的系统进程，这可能会破坏文件系统。
@@ -619,35 +619,35 @@
 
 　　关于-k参数的探索：
 
-	$ cat test
+	[root@localhost ~]# cat test
 	1 25 3
 	2 31 1
 	2 28 2
 	3 13 2
 	1 12 1
 	2 25 2
-	$ sort test
+	[root@localhost ~]# sort test
 	1 12 1
 	1 25 3
 	2 25 2
 	2 28 2
 	2 31 1
 	3 13 2
-	$ sort -k2 test                         #排序区域为从第二块第一个字符到结束
+	[root@localhost ~]# sort -k2 test                         #排序区域为从第二块第一个字符到结束
 	1 12 1
 	3 13 2
 	2 25 2
 	1 25 3
 	2 28 2
 	2 31 1
-	$ sort -t ' ' -k 2.2 test               #排序区域为从第二块第二个字符到结束
+	[root@localhost ~]# sort -t ' ' -k 2.2 test               #排序区域为从第二块第二个字符到结束
 	2 31 1
 	1 12 1
 	3 13 2
 	2 25 2
 	1 25 3
 	2 28 2
-	$ sort  -t ' ' -k 2.2,2.2 test          #排序区域仅为第二块第二个字符
+	[root@localhost ~]# sort  -t ' ' -k 2.2,2.2 test          #排序区域仅为第二块第二个字符
 	2 31 1
 	1 12 1
 	3 13 2
@@ -708,3 +708,37 @@
 	-z                            将输出重定向给gzip命令来压缩内容
 
 　　gzip命令压缩过的tar文件可以用命令tar -zxvf filename.tgz来解压。
+
+#第五章 理解shell#
+
+##5.1 shell的类型##
+
+　　系统启动什么样的shell程序取决于个人的用户ID配置。在/etc/passwd文件中，在用户ID记录的第7个字段中列出了默认的shell程序。只要用户登录到某个虚拟控制台终端或是在GUI中启动终端仿真器，默认的shell程序就会开始运行。
+
+	[root@localhost ~]# cat /etc/passwd
+	root:x:0:0:root:/root:/bin/bash
+	[...]
+	[root@localhost ~]#
+
+　　此例中，默认的shell程序是GNU bash shell。bash shell程序位于bin目录内，从长列表中可以看出/bin/bash是一个可执行文件：
+
+	[root@localhost ~]# ll -F /bin/bash
+	-rwxr-xr-x. 1 root root 874248 5月  11 2012 /bin/bash*
+	[root@localhost ~]#
+
+　　除此之外，还有源自最初的C shell的tcsh，还有ash shell的Debian版本dash等。还有一个默认shell是/bin/sh，他作为默认的系统shell，用于那些需要在启动时使用的系统shell脚本。
+
+	[root@localhost ~]# ll /bin/sh
+	lrwxrwxrwx. 1 root root 4 3月  19 2016 /bin/sh -> bash
+	[root@localhost ~]#
+
+　　此例中，系统默认的shell被设置为bash。
+　　可以直接输入对应文件名来使用其他发行版中可用的shell，如：
+
+	[root@localhost ~]# /bin/dash
+	#
+	# exit
+	[root@localhost ~]# 
+
+##5.2 shell的父子关系##
+
