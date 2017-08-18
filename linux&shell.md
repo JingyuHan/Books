@@ -805,3 +805,38 @@
 
 　　可以看出每出现一对括号，就会生成一个子shell，而括号结束后，进程结束。
 　　在交互式的CLI shell会话中，子shell并非真正的多进程处理，因为终端控制着子shell的I/O，所以采用子shell会明显拖慢处理速度。
+　　在交互式shell中，一个高效的子shell用法是使用后台模式。在后台模式中运行命令可以在处理命令的同时让出CLI，以供他用。要想将命令置入后天模式，可以在命令行末尾加上字符＆。
+
+	[root@localhost ~]# sleep 3000 &
+	[1] 2166
+	[root@localhost ~]# ps -f
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2145  2140  0 10:30 pts/0    00:00:00 -bash
+	root      2166  2145  0 10:31 pts/0    00:00:00 sleep 3000
+	root      2168  2145  0 10:31 pts/0    00:00:00 ps -f
+	[root@localhost ~]# 
+
+　　此例中，sleep命令会在后台（&）睡眠3000秒。当它被置入后台，shell CLI提示符返回之前会出现两天信息。第一条信息是显示在方括号中的后台作业（background job）号（1）。第二条是后台作业的进程ID（2166）。
+　　除了ps命令，jobs命令可以显示出当前运行在后台模式中的所有用户的进程（作业）。
+
+	[root@localhost ~]# jobs
+	[1]+  Running                 sleep 3000 &
+	[root@localhost ~]# 
+
+　　jobs命令再方括号中显示出作业号（1），当前状态（running）以及对应的命令（sleep 3000 &）。
+　　在CLI中运用子shell的创造性方法之一就是将进程列表置入后台模式。既可以在子shell中进行繁忙的处理工作，同时也不会让子shell的I/O受制于终端。
+　　协程也是子shell在CLI中的创造性用法。协程可以同时做两件事。它在后台生成一个子shell，并在这个子shell中执行命令。要进行协程处理，需要使用coproc命令，还有要在子shell中执行的命令。
+
+	[root@localhost ~]# jobs
+	[1]+   Running                 coproc COPROC sleep 10 &
+	[root@localhost ~]# 
+
+　　可以看出在子shell中执行的后台命令是coproc COPROC sleep 10 &,COPROC是coproc命令给进程起的名字。可以使用扩展语法自定义进程名字。
+
+	[root@localhost ~]# coproc My_Job { sleep 10; }
+	[1] 2313
+	[root@localhost ~]# jobs
+	[1]+  Running                 coproc My_Job { sleep 10; } &
+	[root@localhost ~]# 
+
+　　使用扩展语法自定义进程名字时，需要确保花括号两边有空格。
