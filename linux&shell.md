@@ -879,3 +879,55 @@
 - 全局变量
 - 局部变量
 
+　　全局环境变量对于shell会话和所有生成的子shell都是可见的。局部环境变量只对创建它们的shell可见。全局环境变量可以帮助子shell获取父shell的信息。
+　　系统环境变量基本上都是使用全大写字母，以区别于普通用户的环境变量。要查看全局变量，可以使用env或printenv命令。printenv命令可以用来查看个别环境变量。也可以使用echo来显示变量值，这是引用环境变量时，需要在变量前加上美元符（$）。
+
+	[root@localhost ~]# env
+	HOSTNAME=localhost.localdomain
+	SELINUX_ROLE_REQUESTED=
+	TERM=xterm
+	SHELL=/bin/bash
+	HISTSIZE=1000
+	[...]
+	HOME=/root
+	[...]
+	_=/bin/env
+	[root@localhost ~]# printenv HOME
+	/root
+	[root@localhost ~]# env HOME
+	env: HOME: 没有那个文件或目录
+	[root@localhost ~]# echo $HOME
+	/root
+	[root@localhost ~]# ls $HOME
+	anaconda-ks.cfg  install.log  install.log.syslog  sl_ins  sl_ins2  test  test1  test_hl  test_sl
+	[root@localhost ~]# ls /root
+	anaconda-ks.cfg  install.log  install.log.syslog  sl_ins  sl_ins2  test  test1  test_hl  test_sl
+	[root@localhost ~]# bash
+	[root@localhost ~]# ps -f
+	UID        PID  PPID  C STIME TTY          TIME CMD
+	root      2145  2140  0 10:04 pts/0    00:00:00 -bash
+	root      2182  2145  0 10:07 pts/0    00:00:00 bash
+	root      2193  2182  4 10:07 pts/0    00:00:00 ps -f
+	[root@localhost ~]# echo $HOME
+	/root
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# 
+
+　　在linux系统中没有仅显示局部环境变量的命令。set命令会显示某个特定进程设置的所有环境变量，包括局部变量、全局变量以及用户定义变量。
+
+	[root@localhost ~]# set
+	BASH=/bin/bash
+	[...]
+	BASH_ALIASES=()
+	BASH_ARGC=()
+	BASH_ARGV=()
+	BASH_CMDS=()
+	BASH_LINENO=()
+	BASH_SOURCE=()
+	[...]
+	colors=/etc/DIR_COLORS
+	my_variable='Hello World'
+	[root@localhost ~]# 
+
+　　set命令会按照字母顺序对字母进行排序，而env和printenv命令则不会。
