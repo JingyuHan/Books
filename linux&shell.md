@@ -931,3 +931,62 @@
 	[root@localhost ~]# 
 
 　　set命令会按照字母顺序对字母进行排序，而env和printenv命令则不会。
+　　一旦启动bash shell（或执行一个shell脚本），就能够创建在这个shell进程内可见的局部变量了。可以通过等号给环境变量赋值，值可以是数值或字符串。若要给变量赋一个含有空格的字符串，必须用引号来界定字符串的首尾。若没有使用引号，bash shell会认为下一个词是另一个要执行的命令。另外为作区分，自己创建的局部变量或是shell脚本中，一般使用小写字母。
+
+	[root@localhost ~]# echo $my_variable
+	
+	[root@localhost ~]# my_variable=Hello
+	[root@localhost ~]# echo $my_variable
+	Hello
+	[root@localhost ~]# my_variable=Hello World
+	-bash: World: command not found
+	[root@localhost ~]# my_variable="Hello World"
+	[root@localhost ~]# echo $my_variable
+	Hello World
+	[root@localhost ~]# bash
+	[root@localhost ~]# echo $my_variable
+	
+	[root@localhost ~]# my_child_variable="Hello Child World"
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# echo $my_child_variable
+
+	[root@localhost ~]# 
+
+　　从上例可知，在子进程中设置的局部变量，一旦退出子进程，这个局部环境变量就不可用了。
+　　创建全局环境变量的方法是先创建一个局部环境变量，然后再把它导出到全局变量中。这个过程通过export命令来完成，变量名前面不需要加＄。
+
+	[root@localhost ~]# my_variable="i'm Global now"
+	[root@localhost ~]# echo $my_variable
+	i'm Global now
+	[root@localhost ~]# export my_variable
+	[root@localhost ~]# bash
+	[root@localhost ~]# echo $my_variable
+	i'm Global now
+	[root@localhost ~]# my_variable="Null"
+	[root@localhost ~]# echo $my_variable
+	Null
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# echo $my_variable
+	i'm Global now
+	[root@localhost ~]# bash
+	[root@localhost ~]# my_variable="Null"
+	[root@localhost ~]# export my_variable
+	[root@localhost ~]# echo $my_variable
+	Null
+	[root@localhost ~]# exit
+	exit
+	[root@localhost ~]# echo $my_variable
+	i'm Global now
+	[root@localhost ~]# 
+
+　　从上例可知，全局变量在子进程中可用，但是在子进程中修改后不会影响父shell中全局变量的值，使用export命令也无法影响。
+　　unset命令可以删除已存在的环境变量。引用环境变量时，不加＄。同样，在子进程中删除全局变量不会影响父shell中全局变量的值。
+
+	[root@localhost ~]# echo $my_variable
+	i'm Global now
+	[root@localhost ~]# unset my_variable
+	[root@localhost ~]# echo $my_variable
+	
+	[root@localhost ~]# 
