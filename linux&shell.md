@@ -990,3 +990,26 @@
 	[root@localhost ~]# echo $my_variable
 	
 	[root@localhost ~]# 
+
+　　当在sehll命令行界面中输入一个外部命令时，shell会搜索系统来找到对应的程序。PATH环境变量定义了用于进行命令和程序查找的目录。PATH中的目录使用冒号分隔。若命令或程序的位置没有包括在PATH变量中，那么如果不使用绝对路径的话，shell是没法找到的。此时，shell会产生一个错误信息。
+　　应用程序放置可执行文件的目录加入PATH环境变量后，就可以在虚拟目录结构中的任何位置执行程序。添加时无需从头定义，只需引用原来的PATH值，然后追加在后面即可。
+　　通常可以将单点符（.）加入PATH环境变量，该单点符代表当前目录。
+　　对PATH变量的修改只能持续到退出或重启系统。
+　　在登入linux系统启动一个bash shell时，默认情况下bash会在几个文件中查找命令。这些文件叫做启动文件或环境文件。bash检查的启动文件取决于你启动bash shell的方式。启动bash shell有3中方式：
+
+- 登录时作为默认登录shell
+- 作为非登录 shell的交互式shell
+- 作为运行脚本的非交互shell
+
+　　当登录linux系统时，bash shell会作为登录shell启动。登录shell会从5个不同的启动文件中读取命令：
+
+- /etc/profile
+- $HOME/.bash_profile
+- $HOME/.bashrc
+- $HOME/.bash_login
+- $HOME/.profile
+
+　　/etc/profile文件是系统默认的bash shell的主启动文件。系统上每个用户登录时都会执行这个启动文件。另外4个启动文件是针对用户的，可根据个人需求定制。
+　　当bash shell不是登录系统时启动的，那么该sehll叫做交互式shell。交互式shell不会像登录shell一样运行，但它依然提供了命令行提示符来输入命令。交互式shell启动时，不会访问etc/profile文件，只会检查用户HOME目录中的.bashrc文件。
+　　.bashrc文件由两个作用：一是查看/etc目录下通用的bashrc文件，二是为用户提供一个定制自己的命令别名和私有脚本函数的地方。
+　　系统执行shell脚本时启动的shell是非交互式的。它不提供命令行提示符。当sehll启动一个非交互式shell进程时，它会检查BASH_ENV环境变量来查看要执行的启动文件。如果有指定文件，shell会执行该文件里的命令，通常包括sehll脚本变量设置。
