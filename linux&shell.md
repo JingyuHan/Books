@@ -1013,3 +1013,5 @@
 　　当bash shell不是登录系统时启动的，那么该sehll叫做交互式shell。交互式shell不会像登录shell一样运行，但它依然提供了命令行提示符来输入命令。交互式shell启动时，不会访问etc/profile文件，只会检查用户HOME目录中的.bashrc文件。
 　　.bashrc文件由两个作用：一是查看/etc目录下通用的bashrc文件，二是为用户提供一个定制自己的命令别名和私有脚本函数的地方。
 　　系统执行shell脚本时启动的shell是非交互式的。它不提供命令行提示符。当sehll启动一个非交互式shell进程时，它会检查BASH_ENV环境变量来查看要执行的启动文件。如果有指定文件，shell会执行该文件里的命令，通常包括sehll脚本变量设置。
+　　如果变量BASH_ENV没有设置，子shell会继承父shell导出过的变量。通常，父shell是登录shell，在/etc/profile、/etc/profile.d/*.sh和$HOME/.bashrc文件中设置并导出了变量，用于执行脚本的子shell就能继承这些变量。由父shell设置但并未导出的变量就是局部变量。子shell无法继承局部变量。而对于不启动子shell的脚本，变量已经存在于当前shell中，可以使用当前shell的局部变量和全局变量。
+　　
