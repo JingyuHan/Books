@@ -1067,4 +1067,54 @@
 - 用户账户被禁用的日期（用自1970年1月1号到当天的天数表示）
 - 预留字段给将来使用
 
-　　
+　　useradd命令用来向Linux系统添加新用户。可以一次性创建新用户账户及设置用户HOME目录结构。useradd命令使用系统默认值以及命令行参数来设置用户账户。系统默认值被设置在/etc/default/useradd文件中。可以使用加入了-D选项的useradd命令查看所用Linux系统中的这些默认值。
+
+	[root@localhost ~]# useradd -D
+	GROUP=100
+	HOME=/home
+	INACTIVE=-1
+	EXPIRE=
+	SHELL=/bin/bash
+	SKEL=/etc/skel
+	CREATE_MAIL_SPOOL=yes
+	[root@localhost ~]# 
+
+　　这些默认值的含义为：
+
+- 新用户会被添加到GID为100的公共组
+- 新用户的HOME目录将位于/home/loginname
+- 新用户账户密码在过期后不会被禁用
+- 新用户账户未设置过期日期
+- 新用户账户将bash shell作为默认shell
+- 系统会将/etc/skel目录下的内容复制到用户的HOME目录下
+- 系统为该用户账户在mail目录下创建一个用于接收邮件的文件
+
+　　倒数第二个值允许管理员创建一份默认的HOME目录配置，然后把它作为创建新用户HOME目录的模板。这样就能自动在每个新用户的HOME目录放置默认的系统文件。
+　　在创建用户时可以使用参数改变默认值或默认行为，这些参数有：
+
+	  参数                                 描述
+	-c comment                     给新用户添加备注
+	-d home_dir                    为主目录指定一个名字（如果不想用登录名作为主目录名的话）
+	-e expire_data                 用YYYY-MM-DD格式指定一个账户过期的日期
+	-f inactive_days               指定这个账户密码过期多少天后这个账户被禁用；0表示过期马上禁用；-1表示禁用这个功能，即过期不禁用
+	-g initial_group               指定用户登录组的GID或组名
+	-G gruop ...                   指定用户除登录组之外所属的一个或多个附加组
+	-k                             必须和-m一起使用，将/etc/skel目录的内容复制到用户的HOME目录
+	-m                             创建用户的HOME目录
+	-M                             不创建用户的HOME目录（只有当默认设置中要求创建时才使用这个选项）
+	-n                             创建一个与用户登录名同名的新组
+	-r                             创建系统账户
+	-p passwd                      为用户账户指定默认密码
+	-s shell                       指定默认登录的shell
+	-u uid                         为账户指定唯一的UID
+
+　　可以在-D选项后加上指定的值来修改系统默认的新用户设置，这些参数有：
+
+	  参数                                 描述
+	-b default_home                更改默认的创建用户HOME目录的位置
+	-e expiration_date             更改默认的新账户的过期日期
+	-f inactive                    更改默认的新用户从密码过期到账户被禁用的天数
+	-g group                       更改默认的组名称或GID
+	-s shell                       更改默认的登录shell
+
+　　userdel命令可以从系统中删除用户，但默认情况下他只会删除/etc/passwd文件中的用户信息，而不会删除系统中属于该账户的任何文件。加上-r参数则会删除该用户的HOME目录以及邮件目录，然而系统上仍可能存在已删除用户的其他文件。
