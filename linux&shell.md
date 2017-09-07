@@ -1231,9 +1231,118 @@
       rwx           111             7         有全部权限
 
 　　而umask值其实是掩码。也就是说要把umask值从对象的全权限值中减掉。对于文件来说，全权限是666，对于目录来说，则是777。所以默认touch命令创建的文件的默认权限是666减去022，也就是644。
+
+	[root@localhost ~]# touch newfile
+	[root@localhost ~]# ll newfile
+	-rw-r--r--. 1 root root 0 9月   7 09:56 newfile
+	[root@localhost ~]#
+
 　　在大多数Linux发行版中，umask值通常会设置在/etc/profile启动文件中，有一些是设置在/etc/login.defs文件中的。可以用umask命令为默认umask设置指定的新值。
 　　chmod命令可以用来改变文件和目录的安全性设置。该命令格式如下：
 
 	chmod options mode file
 
-　　mode参数可以使用八进制模式或符号模式进行安全性设置。八进制模式设置非常直观，直接用期望赋予文件的标准3位八进制权限码即可。
+　　mode参数可以使用八进制模式或符号模式进行安全性设置。
+　　八进制模式设置非常直观，直接用期望赋予文件的标准3位八进制权限码即可。
+
+	[root@localhost ~]# chmod 760 newfile
+	[root@localhost ~]# ll newfile
+	-rwxrw----. 1 root root 0 9月   7 09:56 newfile
+	[root@localhost ~]# 
+
+　　符号模式指定权限的格式为：
+
+	[ugoa...][+-=][rwxXstugo...]
+
+　　第一组字符定义了权限作用的对象：
+
+- u代表用户
+- g代表组
+- o代表其他
+- a代表上述所有
+
+　　后面跟的符号表示是在现有权限基础上增加权限（+），还是在现有权限上移除权限（-），或是将权限设置为后面的值（=）。
+　　最后，第三个符号代表作用到设置上的权限，除了通常的rwx，还有：
+
+- X 如果对象是目录或其他用户有可执行权限时，赋予执行权限
+- s 运行时重新设置UID或GID
+- t 设置黏着位
+- u 将权限设置为跟属主一样
+- g 将权限设置为跟属组一样
+- o 将权限设置为跟其他用户一样
+
+	[root@localhost ~]# chmod o+r newfile
+	[root@localhost ~]# ll newfile
+	-rwxrw-r--. 1 root root 0 9月   7 09:56 newfile
+	[root@localhost ~]# chmod u-x newfile
+	[root@localhost ~]# ll newfile 
+	-rw-rw-r--. 1 root root 0 9月   7 09:56 newfile
+	[root@localhost ~]# chmod o=u newfile 
+	[root@localhost ~]# ll newfile 
+	-rw-rw-rw-. 1 root root 0 9月   7 09:56 newfile
+	[root@localhost ~]# 
+
+　　-R选项可以让权限的改变递归地作用到文件或目录。还可以使用通配符指定多个文件同意更改权限。
+　　chown命令用来改变文件的属主，chgrp命令用来改变文件的默认属组。
+　　chown命令的格式为：
+
+	chown options [owner].[group] file
+	chgrp group file
+　　
+
+	[root@localhost ~]# chown han newfile
+	[root@localhost ~]# ll newfile 
+	-rw-rw-rw-. 1 han root 0 9月   7 09:56 newfile
+	[root@localhost ~]# chown han.power newfile
+	[root@localhost ~]# ll newfile 
+	-rw-rw-rw-. 1 han power 0 9月   7 09:56 newfile
+	[root@localhost ~]# chown .root newfile
+	[root@localhost ~]# ll newfile 
+	-rw-rw-rw-. 1 han root 0 9月   7 09:56 newfile
+	[root@localhost ~]# chown test. newfile
+	[root@localhost ~]# ll newfile 
+	-rw-rw-rw-. 1 test test 0 9月   7 09:56 newfile
+
+　　-R选项配合通配符可以递归的改变子目录和文件的所属关系。-h选项可以改变改文件所有符号链接文件的所属关系。
+　　只有root用户能够改变文件的属主。任何属主都可以改变文件的属组，但前提是属主必须是原属组和目标属组的成员。
+　　创建新文件是，Linux会用默认的UID和GID给文件分配权限。想让其他人也能访问文件，要改变其他用户所在安全组的访问权限，要么就给文件分配一个包含其他用户的默认属组。如果想在大范围环境中创建文档并将文档与人共享，会粉繁琐。有一种简单的方法可以解决这个问题。
+　　Linux还为每个文件和目录存储了3个额外的信息位：
+
+- 设置用户ID（SUID）：当文件被用户使用时，程序会以文件属主的权限运行
+- 设置组ID（SGID）：对文件来说，程序会以文件属组的权限运行；对目录来说，目录中创建的新文件会以目录的默认属组作为默认属组
+- 黏着位：进程结束后文件还驻留在内存中
+
+　　SGID为对文件共享非常重要。启用SGID位后，你可以强制在一个共享目录下创建的新文件都属于该目录的属组，这个组就成为了每个用户的属组。
+　　SGID课通过chmod命令设置。他会加到标准3位八进制值之前（组成4位八进制值），或者在符号模式中使用符号s。
+　　对于八进制模式下：
+
+	二进制值        八进制值          描  述 
+	  000             0           所有位都清零
+	  001             1           黏着位置位
+	  010             2           SGID位置位
+	  011             3           SGID位和黏着位都置位
+	  100             4           SUID位置位
+	  101             5           SUID位和黏着位都置位
+	  110             6           SUID位和SGID位都置位
+	  111             7           所有位都置位
+
+　　要创建一个共享目录，是目录中的新文件都沿用目录的属组，只需将该目录的SGID位置位。
+
+	[root@localhost ~]# mkdir testdir
+	[root@localhost ~]# ll
+	drwxr-xr-x. 2 root root   4096 9月   7 11:12 testdir
+	[root@localhost ~]# chgrp power testdir
+	[root@localhost ~]# ll
+	drwxr-xr-x. 2 root power  4096 9月   7 11:12 testdir
+	[root@localhost ~]# chmod g+s testdir/
+	[root@localhost ~]# ll
+	drwxr-sr-x. 2 root power  4096 9月   7 11:12 testdir
+	[root@localhost ~]# umask 002
+	[root@localhost ~]# cd testdir/
+	[root@localhost testdir]# touch tesfile
+	[root@localhost testdir]# ll
+	总用量 0
+	-rw-rw-r--. 1 root power 0 9月   7 11:37 tesfile
+	[root@localhost testdir]# 
+
+　　首先，用mkdir命令创建希望共享的目录。然后通过chgrp命令将目录的默认属组改为包含有需要分享共享文件的用户的组（你也必须是该组的成员）。最后，将目录的SGID位置位，以保证目录中新建文件都用power作为默认属组。为了让这个环境正常工作，所有组成员都需要将他们的umask值设为文件对属组成员可写。在上例中，umask值改为002，所以文件对属组是可写的。
