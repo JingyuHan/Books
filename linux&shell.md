@@ -1436,3 +1436,93 @@
 ###创建分区###
 
 　　fdisk工具用来帮助管理安装在系统上的任何存储设备上的分区。它是个交互式程序，允许输入命令来逐步完成磁盘分区操作。
+　　要启动fdisk命令，不许指定要分区的存储设备的设备名，另外还要有超级用户权限。若没有对应权限，会报出如下错误：
+
+	[test@localhost ~]$ fdisk /dev/sdb
+	
+	Unable to open /dev/sdb
+	[test@localhost ~]$ 
+
+　　有时候，创建新磁盘分区最麻烦的事情就是找出安装在Linux系统中的物理磁盘。Linux采用了一种标准格式来为磁盘分配设备名称。对于老式的IDE驱动器，Linux使用的是/dev/hdx。其中x表示一个字母，具体是什么要根据驱动器的检测顺序（第一个驱动器是a，第二个驱动器是b，以此类推）。对于比较新的SATA驱动器和SCSI驱动器，Linux使用/dev/sdx。其中的x具体是什么也要根据驱动器的检测顺序（第一个驱动器是a，第二个驱动器是b，以此类推）。在格式化分区之前，最好再检测一下是否争取确定了驱动器。
+　　如果拥有了超级用户权限并指定了正确的驱动器，那就可以进入fdisk工具的操作界面了。
+
+	[root@localhost dev]# fdisk sdb
+	
+	WARNING: DOS-compatible mode is deprecated. It's strongly recommended to
+	         switch off the mode (command 'c') and change display units to
+	         sectors (command 'u').
+	
+	Command (m for help): 
+
+　　fdisk交互式命令提示符使用单字母命令来告诉fdisk做什么。下面为fdisk命令提示符下可用的命令：
+
+- a：设置活动分区标志
+- b：编辑BSD Unix系统用的磁盘标签
+- c：设置DOS兼容标志
+- d：删除分区
+- l：显示可用的分区类型
+- m：显示命令选项
+- n：添加一个新分区
+- o：创建DOS分区表
+- p：显示当前分区表
+- q：退出，不保存更改
+- s：为Sun Unix系统创建一个新磁盘标签
+- t：修改分区的系统ID
+- u：改变使用的存储单位
+- v：验证分区表
+- w：将分区表写入磁盘
+- x：高级功能
+
+　　实际日常工作中只会用到几个基本命令。
+　　对于初学者，可以用p命令将一个存储设备的详细信息显示出来。
+
+	Command (m for help): p
+
+	Disk sdb: 1073 MB, 1073741824 bytes
+	255 heads, 63 sectors/track, 130 cylinders
+	Units = cylinders of 16065 * 512 = 8225280 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disk identifier: 0xe18f4e2a
+	
+	Device Boot      Start         End      Blocks   Id  System
+	
+	Command (m for help):
+
+　　显示这个存储设备有1073MB（1GB）的空间。存储设备明细后的列表说明这个设备上是否已有分区。这个例子中还没有分区。
+　　使用n命令可以在该存储设备上创建新的分区。
+
+	Command (m for help): n
+	Command action
+	   e   extended
+	   p   primary partition (1-4)
+	p  
+	Partition number (1-4): 1
+	First cylinder (1-130, default 1): 1
+	Last cylinder, +cylinders or +size{K,M,G} (1-130, default 130): 1G
+	
+	Command (m for help): p
+	
+	Disk sdb: 1073 MB, 1073741824 bytes
+	255 heads, 63 sectors/track, 130 cylinders
+	Units = cylinders of 16065 * 512 = 8225280 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disk identifier: 0xe18f4e2a
+	
+	Device Boot      Start         End      Blocks   Id  System
+	  sdb1               1           1        8001   83  Linux
+	
+	Command (m for help): 
+
+　　分区可以按主分区（primary partition）或扩展分区（extended partition）创建。主分区可以被文件系统直接格式化，而扩展分区则只能容纳其他住分区。扩展分区出现的原因是每个存储设备上只能由4个分区。可以通过扩展多个扩展分区，然后在扩展分区内创建主分区进行扩展。上例中创建了一个主分区，在存储设备上给它分配了分区号1，然后给它分配了1GB的存储设备空间。
+　　该存储设备上有了一个分区（/dev/sdb1）。Id列定义了Linux怎样对待该分区。fdisk允许创建多种分区类型。使用l命令可出可用的不同类型。默认类型是83，该类型定义了一个Linux文件系统。若为其他文件系统创建分区（如Windows的NTFS分区），只要选择一个不同的分区类型即可。创建分区后，用w命令将更改保存到存储设备上。
+
+	Command (m for help): w
+	The partition table has been altered!
+	
+	Calling ioctl() to re-read partition table.
+	Syncing disks.
+	[root@localhost dev]# 
+
+　　存储设备的分区信息写入分区表中，Linux系统通过ioctl()调用来获知新分区的出现。设置好分区后，可以用Linux文件系统对其进行格式化。
