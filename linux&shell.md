@@ -1526,3 +1526,56 @@
 	[root@localhost dev]# 
 
 　　存储设备的分区信息写入分区表中，Linux系统通过ioctl()调用来获知新分区的出现。设置好分区后，可以用Linux文件系统对其进行格式化。
+　　在将数据存储到分区之前，必须用某种文件系统对其进行格式化，这样Linux才能使用它。以下为各种文件系统用来格式化分区的命令行程序：
+
+- mkefs：创建一个ext文件系统
+- mke2fs：创建一个ext2文件系统
+- mkfs.ext3：创建一个ext3文件系统
+- mkfs.ext4：创建一个ext4文件系统
+- mkreiserfs：创建一个ReiserFS文件系统
+- jfs_mkfs：创建一个JFS文件系统
+- mkfs.xfs：创建一个XFS文件系统
+- mkfs.zfs：创建一个ZFS文件系统
+- mkfs.btrfs：创建一个Btrfs文件系统
+
+　　每个文件系统命令都有很多命令行选项，允许定制如何在分区上创建文件系统。可以用man命令来显示文件系统命令的手册页面来了解可用的选项。所有的文件系统命令都允许通过不带选项的简单命令来创建一个默认的文件系统。
+
+	[root@localhost ~]# mkfs.ext4 /dev/sdb1
+	mke2fs 1.41.12 (17-May-2010)
+	文件系统标签=
+	操作系统:Linux
+	块大小=1024 (log=0)
+	分块大小=1024 (log=0)
+	Stride=0 blocks, Stripe width=0 blocks
+	2000 inodes, 8000 blocks
+	400 blocks (5.00%) reserved for the super user
+	第一个数据块=1
+	Maximum filesystem blocks=8388608
+	1 block group
+	8192 blocks per group, 8192 fragments per group
+	2000 inodes per group
+	
+	正在写入inode表: 完成                            
+	Creating journal (1024 blocks): 完成
+	Writing superblocks and filesystem accounting information: 完成
+	
+	This filesystem will be automatically checked every 27 mounts or
+	180 days, whichever comes first.  Use tune2fs -c or -i to override.
+	[root@localhost ~]# 
+
+　　这个新的文件系统采用ext4文件系统类型，这是Linux上的日志文件系统。注意，创建过程中有一步是创建新的日志。
+　　为分区创建了文件系统后，下一步是将它挂载到虚拟目录下的某个挂载点，这样就可以将数据存储在新文件系统中了。你可以将新文件系统挂载到虚拟目录中需要额外空间的任何位置。
+
+	[root@localhost ~]# mkdir /mnt/my_partition
+	[root@localhost ~]# ls -dF /mnt/my_partition
+	/mnt/my_partition/
+	[root@localhost ~]# mount -t ext4 /dev/sdb1 /mnt/my_partition
+	[root@localhost ~]# ls -al /mnt/my_partition
+	总用量 17
+	drwxr-xr-x. 3 root root  1024 9月  12 13:23 .
+	drwxr-xr-x. 5 root root  4096 9月  12 13:28 ..
+	drwx------. 2 root root 12288 9月  12 13:23 lost+found
+	[root@localhost ~]# 
+
+　　mkdir命令在虚拟目录中创建了挂载点，mount命令将新的磁盘分区添加到挂载点。mount命令的-t选项指明了要挂载的文件系统类型。然后就可以在新分区保存新文件和目录了。
+　　这种挂载文件系统的方法只能临时挂载文件系统。当重启Linux系统时，文件系统并不会自动挂载。要强制Linux在启动时自动挂载新的文件系统，可以将其添加到/etc/fstab文件。
